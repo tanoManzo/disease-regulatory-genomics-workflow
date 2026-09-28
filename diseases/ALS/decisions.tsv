@@ -1,0 +1,11 @@
+decision_id	date	section	decision	choice	rationale	status
+ALS-DEC-001	2026-09-16	project	Target disease interpretation	Amyotrophic lateral sclerosis	Expansion of folder label ALS	confirmed
+ALS-DEC-002	2026-09-16	project	Phenotype boundary	ALS primary; ALS-FTD contextual overlap	Maintains phenotype specificity while capturing shared biology	confirmed
+ALS-DEC-003	2026-09-16	project	Canonical genome build	GRCh38	Current reference build; preserve and document source builds and lift-over	confirmed
+ALS-DEC-002	2026-09-21	3	GWAS gene locus definition	Gene body +/-100 kb flanks, genes with GWS variants (n=63)	Framework requires gene body plus flanking regions; 100 kb captures proximal regulation without merging adjacent loci	confirmed
+ALS-DEC-003	2026-09-21	3	DNase pairing for refined enhancer/silencer definition	Brain marks x (E081+E082 fetal brain DNase); muscle marks x (E120+E121 HSMM/myotube DNase)	Roadmap has no DNase for E069/E073/E107/E108; nearest available accessibility data; limitation stated	confirmed
+ALS-DEC-004	2026-09-21	3	Motor-neuron enhancer definition	Union H3K27ac (6 ENCODE ALS-MN experiments) intersect union ATAC (10 experiments)	Disease-relevant cell type per Section 1 hierarchy; no MN H3K27me3 exists so MN silencers undefined	confirmed
+ALS-DEC-005	2026-09-23	4	Disease-relevant model	ALS-donor iPSC-derived motor-neuron enhancer model	Matches Section 1 cell hierarchy and paired ENCODE ATAC/H3K27ac availability	confirmed
+ALS-DEC-006	2026-09-23	4	Causal regulatory threshold	Region score at 5% FPR plus absolute allele delta in top 5% of scorable ALS candidates	Combines enhancer identity with allelic perturbation using held-out calibration	confirmed
+ALS-DEC-007	2026-09-23	4	TFBS overlap threshold	Significant Tomtom match q<=0.05 and relative PWM score >=0.80 across altered base	Transparent reproducible motif rule for disruption/creation	confirmed
+ALS-DEC-008	2026-09-23	4	Motor-neuron silencer analysis	Not estimable	No cell-matched motor-neuron H3K27me3 exists; avoid mismatched-tissue substitution	confirmed

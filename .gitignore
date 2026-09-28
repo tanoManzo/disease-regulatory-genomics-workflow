@@ -1,0 +1,25 @@
+# Shared read-only assets (127 GB / 2.3 TB). Never committed.
+# In a clone these are symlinks created by setup.sh; do not add them to git.
+/data
+/models
+/reference_papers
+
+# Per-section working content: only scripts and READMEs are tracked.
+# Each user regenerates these in their own clone (setup.sh creates the dirs).
+diseases/*/*/data/
+diseases/*/*/results/
+diseases/*/*/logs/
+diseases/*/*/tmp/
+
+# Local editor/agent state
+/.claude/
+
+# Stray local files at repo root
+/*.tbi
+/*.gz
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
