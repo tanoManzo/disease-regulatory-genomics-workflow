@@ -30,6 +30,20 @@ recreates the untracked `data/results/logs/tmp` directories in each section.
 You need read access to that folder; nothing more. After that, every path in
 the workflow resolves exactly as in the original project.
 
+### Requirements
+
+- **Dcode group membership.** `models/TREDNET_v2/` and
+  `models/DeepExplainer_TREDNet/` are readable by group `Dcode` only;
+  `setup.sh` checks this and tells you if access is missing.
+- **Python for the analysis scripts** (`#!/usr/bin/env python3`): numpy,
+  pandas, scipy, biopython, pysam. The shared env
+  `/vf/users/Dcode/gaetano/conda/envs/generic_env` has all but pysam; either
+  build your own small env or add pysam to a clone of it. The model
+  pipelines need no setup: TREDNet uses its bundled `.venv` and DeepExplainer
+  activates the shared `deepshap_env` automatically.
+- **bcftools / plink** come from Biowulf modules (`module load bcftools plink`),
+  as in the ALS scripts.
+
 ## The one rule that matters
 
 **`data/` and `models/` are read-only shared assets. Never write there, and
