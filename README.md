@@ -40,6 +40,25 @@ clone. The ALS Section 4 scripts show the pattern: the model is loaded from
 `models/TREDNET_v2/` but `--seqs` and `--out` point into the section's own
 `data/` and `results/` directories.
 
+## Training TREDNet for a new cell line or tissue
+
+`TREDNet_v2.py` reads and writes relative to the current directory, so never
+run it from inside the shared `models/TREDNET_v2/` folder (the first write
+fails with Permission denied). Instead create a writable workspace in your
+clone, wired to the shared phase-I model and genome FASTA:
+
+```bash
+./tools/make_trednet_workspace.sh diseases/<YOUR_DISEASE>/04_modeling/trednet
+```
+
+This creates `input_training_data/`, `models_output/`, and `logs/` locally,
+symlinks the read-only `model_phase_I/` and `fasta/` from the shared folder,
+and writes a `RUNBOOK.md` with the exact three commands: build inputs for
+your cell line, train phase II, and score variants (with your new model or
+any of the shared pre-trained ones, e.g. `MotorNeuron_Enhancer_DHS_x2`).
+Your trained model stays in your clone under
+`diseases/<YOUR_DISEASE>/04_modeling/trednet/models_output/<EID>/`.
+
 ## Starting a new disease study
 
 1. Create `diseases/<YOUR_DISEASE>/` mirroring the ALS section layout
