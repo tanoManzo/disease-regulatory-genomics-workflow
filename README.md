@@ -59,6 +59,23 @@ any of the shared pre-trained ones, e.g. `MotorNeuron_Enhancer_DHS_x2`).
 Your trained model stays in your clone under
 `diseases/<YOUR_DISEASE>/04_modeling/trednet/models_output/<EID>/`.
 
+## Running DeepExplainer (SHAP + TF-MoDISco) from your clone
+
+`models/DeepExplainer_TREDNet/submit2biowulf.sh` writes its timestamped
+output directories next to itself, so it must run from a copy in your clone,
+not from the shared folder. Set one up with:
+
+```bash
+./tools/make_deepexplainer_workspace.sh diseases/<YOUR_DISEASE>/04_modeling/deepexplainer
+```
+
+This copies the two submit scripts (edit their USER CONFIGURATION block for
+your EID, experiment name, and QOS), symlinks the read-only `backup/` (code
+and JASPAR MEME databases), and creates a local `output/`. Point the model
+and input BED paths at the shared TREDNet models or at the ones you trained
+in your own TREDNet workspace. The job activates the shared `deepshap_env`
+conda environment automatically.
+
 ## Starting a new disease study
 
 1. Create `diseases/<YOUR_DISEASE>/` mirroring the ALS section layout
