@@ -46,7 +46,7 @@ Disease-agnostic reference datasets are already downloaded and verified (core re
 - `roadmap_peaks/` — Roadmap consolidated H3K27ac/H3K27me3/DNase narrowPeaks for ALL 127 epigenomes (hg19; lift to hg38 with liftover/): enhancer/silencer definitions for any disease's tissues (Section 3).
 - `ensembl_regulation/` — Ensembl Regulatory Build 116 + motif features (GRCh38).
 - `gtex/` — GTEx v10 cis-eQTLs, all 49 tissues: expression-altering variants, tissue selected per disease (Section 3).
-- `metabrain/` — complete MetaBrain GRCh38 cis-eQTL release for seven tissue/ancestry groups, with top effects, tabix indexes and the publication supplement containing trans-eQTL, interaction-eQTL and ALS enrichment tables. Reuse locally across diseases; redistribution is prohibited by the source terms.
+- `metabrain/` — complete MetaBrain GRCh38 cis-eQTL release for seven tissue/ancestry groups, with top effects, tabix indexes and the publication supplement containing trans-eQTL, interaction-eQTL and disease enrichment tables. Reuse locally across diseases; redistribution is prohibited by the source terms.
 - `fantom5/` — FANTOM5 CAGE enhancer atlas (hg38).
 - `jaspar/` — JASPAR 2026 CORE vertebrate TF motifs (Sections 3-4 TFBS analysis).
 - `blacklist/` — ENCODE hg38 blacklist v2 exclusion regions.
@@ -145,7 +145,7 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
 
 ## 4. Modeling
 
-- Train TREDNet (v2, two-phase transfer learning) enhancer and silencer models for the cell line(s)/cell type(s) associated with the disease. Inputs per model, built from cell-type-matched ENCODE data (hg38): positives = DNase or ATAC peaks overlapping H3K27ac (enhancer model) or H3K27me3 (silencer model), as 1 kb windows centered on the accessibility peak summit. Build controls from the reusable genome-wide pool of merged 1 kb DHS windows in `models/TREDNET_v2/input_training_data/control/allDHS.merge.nonPromoterExon`, which excludes promoters (GENCODE TSS +/- 2 kb) and exons. For each model, additionally remove control windows overlapping the ENCODE blacklist, the respective histone mark (H3K27ac or H3K27me3), or any positive window; restrict both classes to canonical chromosomes. Randomly sample controls with a recorded seed at an exact 1:2 positive-to-control ratio overall, and report positive/control counts for the training, validation, and test partitions. Train on chr1-6, chr10-22, chrX/Y; validate on chr7; test on chr8-9. Report test ROC AUC, PR AUC, and score thresholds at 10/5/3/1% FPR (used later as causal-variant thresholds). Consider modeling multiple cell lines/donors where appropriate and compare per-model performance. (Implementation: `models/TREDNET_v2/make_input_training_data.py` for inputs, using `--control-pool`, `--ratio 2`, and a recorded `--seed`; `TREDNet_v2.py` for training; `TREDNet_v2_inference.py` for scoring; e.g., trained ALS motor neuron enhancer model `MotorNeuron_Enhancer_DHS_x2`, ENCODE donor ENCDO689YDN ATAC ENCSR131HOY + H3K27ac ENCSR489LNU: AUC 0.782, AUPRC 0.652.)
+- Train TREDNet (v2, two-phase transfer learning) enhancer and silencer models for the cell line(s)/cell type(s) associated with the disease. Inputs per model, built from cell-type-matched ENCODE data (hg38): positives = DNase or ATAC peaks overlapping H3K27ac (enhancer model) or H3K27me3 (silencer model), as 1 kb windows centered on the accessibility peak summit. Build controls from the reusable genome-wide pool of merged 1 kb DHS windows in `models/TREDNET_v2/input_training_data/control/allDHS.merge.nonPromoterExon`, which excludes promoters (GENCODE TSS +/- 2 kb) and exons. For each model, additionally remove control windows overlapping the ENCODE blacklist, the respective histone mark (H3K27ac or H3K27me3), or any positive window; restrict both classes to canonical chromosomes. Randomly sample controls with a recorded seed at an exact 1:2 positive-to-control ratio overall, and report positive/control counts for the training, validation, and test partitions. Train on chr1-6, chr10-22, chrX/Y; validate on chr7; test on chr8-9. Report test ROC AUC, PR AUC, and score thresholds at 10/5/3/1% FPR (used later as causal-variant thresholds). Consider modeling multiple cell lines/donors where appropriate and compare per-model performance. (Implementation: `models/TREDNET_v2/make_input_training_data.py` for inputs, using `--control-pool`, `--ratio 2`, and a recorded `--seed`; `TREDNet_v2.py` for training; `TREDNet_v2_inference.py` for scoring. Pre-trained models from completed studies are available under `models/TREDNET_v2/`; see the `04_modeling` section of a completed disease workspace under `diseases/` for a worked example with recorded inputs and performance.)
 
 - Using the TREDNet models trained in the previous step, re-count GWAS variants that occur within or affect predicted regulatory elements: a variant lies in a predicted enhancer/silencer if the model score of its surrounding region passes the FPR threshold chosen above, and its regulatory impact is quantified as the delta score between reference and alternate alleles (each scored in the variant-centered 2001 bp window). Establish a threshold for causal variants using these two quantities (e.g., region score above the 5% FPR cutoff and allele delta score in the top percentiles of matched background variants; state the exact definition used). Compare predicted causal regulatory variants with associated regulatory variants, coding variants, and all GWAS variants. Calculate the fraction of GWAS genes with at least one causal regulatory variant and the fraction with no regulatory variants. Classify gene loci into the following categories: coding + causal regulatory variants, coding only, causal regulatory only, and other. For the “other” loci, assess whether an alternative cell line might be necessary.
 
@@ -192,16 +192,12 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
 
 ### Shared local-data availability (updated 2026-09-25)
 
-- Already local in `data/`: GTEx v10 cis-eQTLs, the complete MetaBrain 2021-07-23 cis-eQTL release and publication supplement, MPRAbase v4.9.3, all compact SingleBrain v2 top-association files, NIAGADS xQTL Atlas track metadata, consolidated BrainTF peak collections, HGNC, Open Targets, and Neale Lab UK Biobank LDSC topline results. The ALS-specific Project MinE 2021 GWAS, rare-burden, and SMR archive is stored in `data/als_gwas/project_mine_2021/`. Section 4 regulatory resources are also local.
+- Already local in `data/`: GTEx v10 cis-eQTLs, the complete MetaBrain 2021-07-23 cis-eQTL release and publication supplement, MPRAbase v4.9.3, all compact SingleBrain v2 top-association files, NIAGADS xQTL Atlas track metadata, consolidated BrainTF peak collections, HGNC, Open Targets, and Neale Lab UK Biobank LDSC topline results. Section 4 regulatory resources are also local. Disease-specific archives (e.g., full GWAS summary statistics) are documented in the corresponding disease workspace under `diseases/`.
 - MetaBrain has restricted reuse terms: use the local copy for scientific research and education, do not redistribute it, and cite de Klein et al. (Nature Genetics, 2023; DOI 10.1038/s41588-023-01300-6). All 315 official manifest files passed MD5 verification.
 - Not mirrored because access or licensing remains restricted: PsychENCODE primary data, OMIM, DisGeNET licensed releases, and participant-level biobank data. Obtain the required approval/account before use.
-- Public query status for ALS: xQTL Atlas, QTLbase, ProteomeVariation, MAtCH, HuGE Calculator, and public PsychENCODE Phase I processed eQTLs are complete. xQTL Serve is unavailable and functionally superseded by xQTL Atlas.
+- xQTL Serve is unavailable and functionally superseded by xQTL Atlas. Record the per-disease public portal query status in the disease workspace.
 - SingleBrain full association statistics (165.7 GB) are not mirrored; the complete top-association subset is local. Large NIAGADS/QTLbase bulk collections should be added only when the relevant QTL types and tissues have been selected.
 - The authoritative path/access inventory is `data/validation_resources.tsv`; general SHA-256 checksums are in `data/validation_checksums.sha256`. Downloads are reproducible with `data/scripts/dl_validation_resources.sh` and `data/scripts/dl_metabrain.sh`; MetaBrain retains its official MD5 manifest and supplemental SHA-256 file inside its release directory.
-
-### ALS execution status (2026-09-25)
-
-Section 5 is complete for public data. Exact candidate queries, public processed QTLs, Project MinE GWAS-to-MetaBrain locus analysis, and applicable public portal audits are recorded in `diseases/ALS/05_computational_validation/`. Controlled/private biobanks, PsychENCODE primary data, and licensed OMIM/DisGeNET releases are excluded from this completion boundary.
 
 ## 6. Experimental and Biological Validation
 
@@ -210,11 +206,6 @@ Section 5 is complete for public data. Exact candidate queries, public processed
 - Consider if TFs could be tested instead of the variants.
 
 - Provide this data to collaborators capable of conducting MPRA, […] validation.
-
-### ALS execution status (2026-09-25)
-
-Section 6 design and handoff are complete in `diseases/ALS/06_experimental_validation/`: four ranked candidates, a TF-testing decision matrix, 16 GRCh38 MPRA inserts, and staged orthogonal-validation work packages. Wet-lab experiments have not been performed. External transfer or experimental initiation awaits collaborator selection.
-
 
 ## 7. Manuscript Writing and Assembly
 
