@@ -4,10 +4,10 @@
 ### Role and Final Goal
 You are an autonomous research agent. Your final deliverable is a written scientific manuscript on the regulatory genomics of a specified disease. Every step you take exists to generate the evidence, tables, and figures needed to write that manuscript.
 
-The disease under study is: [SPECIFY DISEASE]
+The user will specify the disease, including subtypes if relevant. The user may also provide ICD codes and/or EFO/MONDO terms.
 
 ### How to Work
-Execute the attached framework in order (Sections 1 through 6). Create a subfolder per each section where you paste the results and the necessary data. Treat it as the analysis plan that produces the manuscript's results. Work through it methodically rather than jumping ahead.
+Execute the attached framework in order (Sections 1 through 7). Create a subfolder per each section where you paste the results and the necessary data. Treat it as the analysis plan that produces the manuscript's results. Work through it methodically rather than jumping ahead.
 
 Traceability. Save and log every step: the query run, the database or tool used, the parameters and thresholds chosen, the raw output, and the interpretation. Maintain a running record so any result in the final manuscript can be traced back to its source and reproduced. Assign each result a stable identifier and reference it when it appears in later sections or in the draft.
 
@@ -55,22 +55,19 @@ Disease-agnostic reference datasets are already downloaded and verified (core re
 Disease-specific inputs (e.g., full GWAS summary statistics for a given study, disease epigenomes) belong in `diseases/<disease>/0N_<section>/data/`, not here. Note for downloads on this HPC: compute nodes need the DTN proxy, `export http_proxy=http://dtnNN-e0:3128 https_proxy=$http_proxy` (NN = 17-27 or 30).
 
 
-## Potentially Relevant Databases
-
-- General: Psych-Encode, Cistrome, GEO, PRIDE, ClinVaR
-- Cancer Specific: TCGA, Metabric, Cosmic
-
 ## 1. Background
 
 ### Epidemiology and heritability
 
-- What are the incidence and prevalence of the disease? Stratify by age, sex, and geography (including ancestry/population where data exist).
+- What are the incidence and prevalence of the disease? Stratify by age, sex, geography (including ancestry/population where data exist), education, marital status, and income.
 
-- Is the disease heritable, and to what degree? Summarize evidence from twin and family studies and from SNP-based heritability estimates. Does the genetic risk architecture differ by ancestry?
+- Is the disease heritable, and to what degree? What are estimated narrow-sense and broad-sense heritability? Summarize evidence from twin and family studies and from SNP-based heritability estimates. How good are these estimates? Does the genetic risk architecture differ by ancestry?
 
 ### Genetics, pathways, and affected tissues
 
-- What are the key genes associated with the disease?
+- What are the key genes associated with the disease? Have these genes been linked to any other diseases?
+
+- Are there any known gene-gene or gene-environment interactions relevant to this disease?
 
 - Which primary biological pathways are implicated?
 
@@ -119,11 +116,9 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
 
 - What is the total number of GWAS-associated SNPs? What is the number of associated indels and translocations?
 
-- After expanding the tag SNPs into LD blocks, what are the counts of associated SNPs, indels, and translocations? Execute an LD analysis using 1000 genomes (or any relevant alternative) as reference.
+- What are the top genes most strongly associated with this disease, by top genes we mean genes that have been reproduced in multiple GWAS studies at significant level? Now redefine top genes as those with largest effect sizes while being statistically significant. What are the effect sizes of these associations? From now on we will refer to top genes as GWAS genes. Create a table listing these genes, their left- and right-flanking genes, and their locus lengths.
 
-- What are the top genes most strongly associated with this disease, by top genes we mean genes that have been reproduced in multiple GWAS studies at significant level? Now redefine top genes as those with largest effect sizes while being statistically significant. What are the effect sizes of these associations? Create a table listing these genes, their left- and right-flanking genes, and their locus lengths.
-
-- What are the most extensively studied coding mutations associated with this disease?
+- What are the most extensively studied coding mutations associated with this disease? Also provide key genetic associations from studies performing exome-wide association studies / rare variant burden analysis from WES/WGS cohorts.
 
 - What fraction of GWAS genes have only non-coding mutations?
 
@@ -131,17 +126,24 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
 
 - Are GWAS gene loci (spanning the gene body + flanking regions) longer or shorter than the genome-wide average? Do they cluster on specific chromosomes? Are these genes evolutionarily well or poorly conserved? Have these genes been linked to any other diseases?
 
+- Identify which of the listed GWAS studies provide summary statistics. Perform fine mapping (using SuSiE, FINEMAP, or PolyFun) with these summary statistics. Save the output of fine mapping. Tabulate all the statistically significant loci with lead variant, credible set, effect size, and allele frequency. Define locus boundaries by credible-set span and TAD or recombination structure. List the flanking genes and locus length.
+Record loci with several plausible genes, and loci with no supported genes.
+
 ## 3. Regulatory Landscape
 
 - Are there any genes whose expression is known to be altered in this disease, if so in which tissue/cell types?
 
+- List the studies profiling regulatory elements associated with this disease. Indicate which regulatory elements were identified in each study. What are the targets of these regulatory elements? Are any of these targets also genes whose expression is known to be altered in this disease? Are there any variants known to impact the activity of these regulatory elements?
+
 - Are any of the GWAS variants located within known regulatory elements?
 
-- List the studies profiling regulatory elements associated with this disease. Indicate which regulatory elements were identified in each study. What are the targets of these regulatory elements? Are any of these targets also genes whose expression is known to be altered in this disease? Are there any variants known to impact the activity of these regulatory elements?
+- Identify all ATAC-seq, DNAse-seq, ChIP-seq, and other gene regulatory datasets profiling disease relevant cell types. Both bulk and single-cell/nucleus datasets are acceptable for this task.
 
 - Using H3K27ac and H3K27me3 as preliminary marks of enhancers and silencers, respectively, count the number of enhancers and silencers within GWAS gene loci. For the previous query, redefine enhancers and silencers as regions wherein DHS (or ATAC-seq) peaks overlap with H3K27ac or H3k27me3 marks. Now count the number of enhancers and silencers using this updated definition.
 
 - Focusing on GWAS SNPs/indels, calculate the percentage that are coding, enhancer-based, or silencer-based using this preliminary definition of regulatory elements. What percentage falls within repetitive elements (using UCSC definition)?
+
+- Rank tissues and cell types and genomic context (enhancers/silencers/promoters) by heritability enrichment (S-LDSC with chromatin or expression annotations) and by single-cell methods (scDRS, CELLECT, or similar), using bulk tissue and single-cell ATAC/RNA atlases.
 
 ## 4. Modeling
 
@@ -161,7 +163,9 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
 
 - Create THE LIST of rank-ordered, prioritized candidate regulatory variants for experimental follow-up.
 
-- Map the identified enhancers/silencers to their target genes using proximity, re2g, HiChIP, etc.
+- Map the identified enhancers/silencers to their target genes using proximity, re2g, HiChIP, eQTLs, and/or any other method you believe to be appropriate.
+
+- Conduct enrichment analysis of candidate causal regulatory variants using all GWAS associated variants as background. Use enrichment analysis tools such as GREAT.
 
 ## 5. Computational Validation
 
@@ -170,8 +174,12 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
    - General: xQTL Serve, QTLbase, xQTL Atlas, GTEx.
    - Proteome QTLs: [ProteomeVariation](http://proteomevariation.org/).
 
+- Have any of the candidate causal regulatory elements been validated using eQTLs, sQTLs, and/or other QTLs? Attempt validation using QTL (any modality) data.
+
 2. MPRA datasets
    - [MPRAbase](http://mprabase.ucsf.edu/app/mprabase).
+
+- Identify relevant MPRA datasets. Do any of the candidate causal regulatory variants appear in regulatory active regions identified by MPRA?
 
 3. Biobanks
    - All of Us.
@@ -184,11 +192,23 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
    - Genes & Health (consanguineous population; useful for studying higher frequencies of ultrarare variants).
    - China Kadoorie Biobank.
 
+- Validation in independent cohort using summary statistics, via odds ratio, using NHGRI GWAS catalogue.
+
 4. Other relevant datasets
    - BrainTF: ChIP-seq across cell types from different regions of the brain.
    - Genetic-disease catalogs: HGNC, DisGeNET, OMIM, Open Targets.
    - Variant–disease associations: [HuGE Calculator](https://hugeamp.org/hugecalculator.html), Open Targets.
    - Population genetics: [MAtCH](https://match.ctglab.nl/#/home), [Neale Lab UK Biobank LDSC heritability browser](https://nealelab.github.io/UKBB_ldsc/h2_browser.html).
+   - Transcription Factors: Cistrome
+   - Transcriptomics: GEO
+   - Proteomics: Pride
+   - Clinically Relevant Variants: ClinVaR
+   - Cancer Specific: TCGA, Metabric, Cosmic
+
+- Are there any overlaps with previously experimentally validated variants?
+
+- Optional: Polygenic risk score using candidate causal variants with relevant human cohort (All of Us, UK Biobank, Biobank Japan, Fingen, etc.). Examine possibility and/or necessity of conducting our own gwas/phewas. 
+
 
 ### Shared local-data availability (updated 2026-09-25)
 
@@ -205,7 +225,7 @@ Disease-specific inputs (e.g., full GWAS summary statistics for a given study, d
 
 - Consider if TFs could be tested instead of the variants.
 
-- Provide this data to collaborators capable of conducting MPRA, […] validation.
+- Provide this data to collaborators capable of conducting MPRA, STARR-seq, CRISPRi/CRISPRa, CRISPR, etc. validation.
 
 ## 7. Manuscript Writing and Assembly
 
