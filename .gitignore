@@ -2,14 +2,12 @@
 # In a clone these are symlinks created by setup.sh; do not add them to git.
 /data
 /models
-/reference_papers
+/ATLAS
+
 
 # Per-section working content: only scripts and READMEs are tracked.
 # Each user regenerates these in their own clone (setup.sh creates the dirs).
-diseases/*/*/data/
-diseases/*/*/results/
-diseases/*/*/logs/
-diseases/*/*/tmp/
+diseases/*
 
 # Local editor/agent state
 /.claude/
