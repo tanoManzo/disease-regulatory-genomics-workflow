@@ -15,6 +15,10 @@ diseases/*
 # Stray local files at repo root
 /*.tbi
 /*.gz
+/&1
+
+# Unpublished manuscripts kept local only
+frameworks/Fibromyalgia-Ivan-v2.pdf
 
 # Python
 __pycache__/
