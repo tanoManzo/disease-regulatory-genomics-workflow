@@ -2,33 +2,46 @@
 
 A reusable, agent-executable workflow for producing a scientific manuscript on
 the regulatory genomics of a disease. The framework is disease-agnostic; the
-completed ALS study is included as a worked example (scripts and READMEs; its
-data and results stay on the shared filesystem).
+completed ALS study is available read-only as a worked example (`setup.sh`
+links it into your clone; it is not stored in git).
 
 ## Layout
 
 | Path | Contents | In git? |
 |---|---|---|
-| `frameworks/` | The master analysis framework (Sections 1-6) that drives the whole study | yes |
-| `diseases/ALS/` | Worked example: per-section scripts, READMEs, and traceability logs | scripts + READMEs only |
+| `frameworks/` | The master analysis framework (`DiseaseFramework.md`, Sections 0-7) that drives the whole study | yes |
+| `criteria/` | The manuscript evaluation rubric (`rubric_v5.md`) | yes |
+| `reference_papers/` | The style reference paper (Huang and Ovcharenko, *Sci. Adv.* 2026, CC BY 4.0) | yes |
+| `tools/` | Helpers that create writable TREDNet and DeepExplainer workspaces | yes |
+| `diseases/<YOUR_DISEASE>/` | Your study: per-section scripts, data, results, logs and traceability TSVs | no — ignored; stays in your clone |
+| `diseases/ALS_ASTRA/` | Worked example (scripts, results, manuscript editions) | no — read-only symlink |
 | `data/` | ~127 GB of disease-agnostic reference data (GWAS Catalog, GENCODE, 1000G, GTEx, Roadmap, JASPAR, ...). See `data/README.md` for the inventory | no — symlink to shared folder |
-| `models/` | Trained TREDNet v2 and DeepExplainer models (~2.3 TB) | no — symlink to shared folder |
-| `reference_papers/` | Key publications | no — symlink to shared folder |
+| `models/` | TREDNet v2, DeepExplainer and AlphaGenome (~2.3 TB) | no — symlink to shared folder |
 
 ## Getting started (NIH Biowulf)
 
 ```bash
-git clone <this-repo> my_disease_study
+git clone https://github.com/tanoManzo/disease-regulatory-genomics-workflow.git my_disease_study
 cd my_disease_study
-./setup.sh
+./setup.sh <YOUR_DISEASE>
+git switch <your-branch>
 ```
 
-`setup.sh` symlinks `data/`, `models/`, and `reference_papers/` to the shared
-read-only project folder
-(`/vf/users/Dcode/gaetano/projects/Writing_Scientific_Manuscript_Codex/`) and
-recreates the untracked `data/results/logs/tmp` directories in each section.
-You need read access to that folder; nothing more. After that, every path in
-the workflow resolves exactly as in the original project.
+`setup.sh` symlinks `data/` and `models/` to the shared read-only project
+folder (`/vf/users/Dcode/gaetano/projects/Writing_Scientific_Manuscript_Codex/`),
+links the worked example as `diseases/ALS_ASTRA/`, and, when given a disease
+name, creates `diseases/<YOUR_DISEASE>/` with the eight section folders
+(`00_study_design` ... `07_manuscript`, each with `scripts/ data/ results/
+logs/ tmp/`) and empty traceability logs (`decisions.tsv`, `activity_log.tsv`,
+`results_register.tsv`, `sources.tsv`). Running it again is safe. You need
+read access to the shared folder; nothing more.
+
+### Branches
+
+Each team member has a personal branch (`jaya`, `stas`, `ivan`, `elline`,
+`alexandra`, `di`, `yash`); `dev` is the shared integration branch. Commit to
+your branch, open a pull request into `dev` when work is ready to share, and
+`dev` is merged into `main` after review. Pull `main` regularly.
 
 ### Requirements
 
@@ -42,7 +55,10 @@ the workflow resolves exactly as in the original project.
   pipelines need no setup: TREDNet uses its bundled `.venv` and DeepExplainer
   activates the shared `deepshap_env` automatically.
 - **bcftools / plink** come from Biowulf modules (`module load bcftools plink`),
-  as in the ALS scripts.
+  as in the worked-example scripts.
+- **AlphaGenome** additionally needs a GPU allocation, your own Hugging Face
+  account with the AlphaGenome model terms accepted, and a GRCh38 FASTA with
+  its `.fai` index (see below).
 
 ## The one rule that matters
 
@@ -50,9 +66,10 @@ the workflow resolves exactly as in the original project.
 never design a script that tries to.** All inputs you prepare and all outputs
 you generate — including model inference inputs/outputs — belong in
 `diseases/<YOUR_DISEASE>/0N_<section>/{data,results,logs,tmp}` inside your
-clone. The ALS Section 4 scripts show the pattern: the model is loaded from
-`models/TREDNET_v2/` but `--seqs` and `--out` point into the section's own
-`data/` and `results/` directories.
+clone. The worked example's Section 4 scripts
+(`diseases/ALS_ASTRA/04_modeling/scripts/`) show the pattern: the model is
+loaded from `models/TREDNET_v2/` but inputs and outputs point into the
+section's own `data/` and `results/` directories.
 
 ## Training TREDNet for a new cell line or tissue
 
@@ -90,25 +107,46 @@ and input BED paths at the shared TREDNet models or at the ones you trained
 in your own TREDNet workspace. The job activates the shared `deepshap_env`
 conda environment automatically.
 
+## Scoring variants with AlphaGenome
+
+`models/AlphaGenome/` (see its `README.md` and framework Section 4) scores a
+variant against 5,563 human tracks (RNA-seq, CAGE, DNase, ATAC, histone and TF
+ChIP-seq, splicing) and reports a raw and a calibrated quantile score per gene
+and track. Use the shared environment directly, on a GPU node, and write
+outputs into your workspace:
+
+```bash
+AG=models/AlphaGenome
+export ALPHAGENOME_FASTA=/path/to/GRCh38.fa
+$AG/.venv/bin/hf auth login     # once; never put the token in files or scripts
+$AG/.venv/bin/python $AG/score_variants.py --check-only --output-dir diseases/<YOUR_DISEASE>/04_modeling/results/ag_check
+$AG/.venv/bin/python $AG/score_variants.py --chromosome <chr> --position <1-based> --ref <REF> --alt <ALT> \
+    --output-dir diseases/<YOUR_DISEASE>/04_modeling/results/ag_<variant>
+$AG/.venv/bin/python $AG/summarize_scores.py diseases/<YOUR_DISEASE>/04_modeling/results/ag_*/scores.tsv \
+    --controls <controls>/*/scores.tsv --ontology <CURIEs> --output-dir <dir>
+```
+
+The runner scores one variant per call; for a variant set, write a batch
+script in your workspace that loads the model once per GPU job.
+
 ## Starting a new disease study
 
-1. Create `diseases/<YOUR_DISEASE>/` mirroring the ALS section layout
-   (`01_background` ... `06_experimental_validation`, plus `manuscript/` and
-   fresh `activity_log.tsv`, `decisions.tsv`, `results_register.tsv`,
-   `sources.tsv`).
-2. Give the framework (`frameworks/DiseaseFramework_SL091626.md`) to your AI
-   agent with the disease name filled in, or work through it manually,
-   Section 1 to Section 6 in order.
+1. Run `./setup.sh <YOUR_DISEASE>` to create `diseases/<YOUR_DISEASE>/` with
+   the section layout and fresh traceability logs.
+2. Give the framework (`frameworks/DiseaseFramework.md`) to your AI agent with
+   the disease name filled in, or work through it manually, Section 0 to
+   Section 7 in order. Worked examples in the framework point to
+   `diseases/ALS_ASTRA/`; adapt them, do not reuse their disease-specific inputs.
 3. Follow the traceability conventions from the framework: stable result
    identifiers (`<DISEASE>-S<section>-R<nnn>`), logged queries and parameters,
    verified citations.
 
 ### Path convention for new scripts
 
-The ALS scripts hardcode absolute paths to the original project folder (they
-are the frozen record of a completed study; their references into shared
-`data/` still work read-only from anywhere). For new scripts, resolve the
-clone root from the script location so your study is portable:
+Some worked-example scripts hardcode absolute paths to the original project
+folder (they are the frozen record of a completed study; their references into
+shared `data/` still work read-only from anywhere). For new scripts, resolve
+the clone root from the script location so your study is portable:
 
 ```python
 # diseases/<DISEASE>/0N_section/scripts/xx_step.py
@@ -129,7 +167,10 @@ SECTION="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"  # writable
 
 - Compute nodes reach the internet through the DTN proxy:
   `export http_proxy=http://dtnNN-e0:3128 https_proxy=$http_proxy` (NN = 17-27 or 30).
-- GPU jobs (TREDNet scoring) follow the SBATCH headers in
-  `diseases/ALS/04_modeling/scripts/`.
+- GPU jobs (TREDNet training and scoring) follow the SBATCH headers in
+  `diseases/ALS_ASTRA/04_modeling/scripts/*.sbatch`.
 - MetaBrain data in `data/metabrain/` may not be redistributed; use it in
-  place only. Keep this repository private.
+  place only.
+- **This repository is public.** Never commit credentials (including Hugging
+  Face tokens), restricted or controlled-access data, unpublished manuscripts,
+  or anything under `diseases/`.
