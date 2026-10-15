@@ -121,6 +121,8 @@ Apply no red-flag score caps or penalties beyond the rubric's stated component a
 
 - Which ENCODE/NIH Roadmap cell lines are most relevant to those cell types and tissues?
 
+- Assemble the evidence for candidate cell contexts before any variant overlap is inspected, with a citation for each line: tissue and cell-type enrichment reported by the largest GWAS (for example MAGMA, S-LDSC or expression-based enrichment); pathology, imaging or physiology showing which tissues, regions or cell types are affected; single-cell or sorted-cell studies of disease tissue; and peripheral tissues implicated in the disease. List each candidate context with its evidence and mark it as a primary disease context or a comparator. Here "cell line" means any ENCODE or Roadmap biosample (tissue, primary cell, in vitro differentiated cell or immortalized line); Section 3 turns this list into the modeling contexts.
+
 ### Comorbidity and progression
 
 - What diseases are comorbid with the disease in question? (OpenTargets can be used to identify comorbidities.)
@@ -184,6 +186,17 @@ Record loci with several plausible genes, and loci with no supported genes.
 - Are any of the GWAS variants located within known regulatory elements?
 
 - Identify all ATAC-seq, DNAse-seq, ChIP-seq, and other gene regulatory datasets profiling disease relevant cell types. Both bulk and single-cell/nucleus datasets are acceptable for this task.
+
+- Select the modeling contexts systematically and record the choice, with its rationale and rejected alternatives, in the decision log before any variant overlap or heritability result in those contexts is inspected:
+  1. Query the ENCODE portal (GRCh38, released, human) for DNase-seq, ATAC-seq, H3K27ac and H3K27me3 experiments in the candidate organs and cell types from Section 1 (organ and cell slims), save the raw responses, and build a biosample-by-assay matrix with donor counts, biosample class (tissue, primary cell, in vitro differentiated cell, cell line), donor disease status and age, and audit flags. List matching Roadmap epigenomes from the local consolidated peaks.
+  2. Keep a primary context only if it has accessibility and H3K27ac for an enhancer model, plus H3K27me3 for a silencer model, preferably from the same donors. Record donor numbers per assay and flag marks that come from fewer donors than accessibility.
+  3. Prefer the affected cell type, then the affected tissue, then the closest proxy, and state each compromise (bulk tissue, donor age or disease cohort, iPSC-derived or cancer cell lines, missing cell types or developmental stages).
+  4. Add comparator contexts not expected to carry risk (for example blood, liver or muscle for a neural disease, or neural tissue for a non-neural one), as models or as heritability annotations, so that context specificity can be tested.
+  5. With several donors, fix consensus rules in advance (for example peak support by at least half the donors, or the tissue-level union of histone peaks when donor-level calls are too few), and hold out donors with a recorded seed for donor-level evaluation, excluding donors seen by any pretrained model.
+  6. Published tissue enrichment may guide the choice. If the study's own heritability ranking is used to choose contexts, do not then present enrichment in the chosen contexts as an independent finding; otherwise report the heritability partitioning against comparators as a confirmation.
+  7. List the contexts that could not be modeled (cell types, developmental stages, peripheral tissues, missing assays) as limitations.
+
+  (Worked examples: the ALS study chose iPSC-derived motor neurons plus cortex, astrocyte, myoblast and monocyte comparators from a systematic ENCODE inventory, `diseases/ALS_ASTRA/01_background/scripts/encode_inventory.py`, `03_regulatory_landscape/scripts/encode_select.py` and `build_contexts.py`; the fibromyalgia study, `frameworks/Fibromyalgia-Ivan-v2.pdf`, chose adult dorsolateral prefrontal cortex and caudate nucleus from GWAS brain enrichment and imaging evidence and used Roadmap blood, liver and muscle epigenomes as heritability comparators.)
 
 - Using H3K27ac and H3K27me3 as preliminary marks of enhancers and silencers, respectively, count the number of enhancers and silencers within GWAS gene loci. For the previous query, redefine enhancers and silencers as regions wherein DHS (or ATAC-seq) peaks overlap with H3K27ac or H3k27me3 marks. Now count the number of enhancers and silencers using this updated definition.
 
