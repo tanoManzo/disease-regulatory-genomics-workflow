@@ -3,6 +3,14 @@
 /data
 /models
 /ATLAS
+!/ATLAS/
+/ATLAS/*
+!/ATLAS/site/
+!/ATLAS/export_dashboard.py
+!/ATLAS/DASHBOARD.md
+!/ATLAS/tests/
+/ATLAS/tests/*
+!/ATLAS/tests/test_dashboard.py
 
 
 # Per-section working content: only scripts and READMEs are tracked.

@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "exported_at": "2026-10-26T14:31:51+00:00",
+  "audit_as_of": "2026-10-23T14:27:45+00:00",
+  "assembly": "GRCh38",
+  "audit_status": "pass",
+  "scientifically_validated": false,
+  "rows": 78229218,
+  "chunks": 619,
+  "bytes": 13485020717,
+  "status_counts": {
+    "ambiguous_context": 15791,
+    "ok": 78213330,
+    "unsupported_allele": 97
+  },
+  "records_by_chromosome": {
+    "1": 6191833,
+    "10": 3874259,
+    "11": 3881791,
+    "12": 3745465,
+    "13": 2760845,
+    "14": 2548903,
+    "15": 2301453,
+    "16": 2548920,
+    "17": 2209149,
+    "18": 2189529,
+    "19": 1738824,
+    "2": 6790551,
+    "20": 1817492,
+    "21": 1045269,
+    "22": 1059079,
+    "3": 5641493,
+    "4": 5477810,
+    "5": 5115036,
+    "6": 4863337,
+    "7": 4511408,
+    "8": 4425449,
+    "9": 3384360,
+    "X": 106963
+  },
+  "audit_seconds": 3076.761601585895,
+  "plan_sha256": "f70d50b0c82c454d2e8e0e0898e038ab3dac1dd38128b5d1a3cd47067fba1887",
+  "audit_code_sha256": "597d457c1b9e9a5d2c91a572f0d55c89190db30e951a1d4249285301c4b5e455",
+  "audit_sha256": "8e9051980f0e06ae6557e04303ee297225f95285113f313034513f54687e51e4",
+  "download_base": null,
+  "models": [
+    {
+      "id": "E003",
+      "biosample": "H1 embryonic stem cells",
+      "source": "ENCODE",
+      "dhs": "ENCFF726ZCF",
+      "h3k27ac": "ENCFF520LUH",
+      "roc_auc": 0.9670890027837761,
+      "average_precision": 0.9355202427963777,
+      "counts": {
+        "test": {
+          "0": 289,
+          "1": 133
+        },
+        "train": {
+          "0": 2612,
+          "1": 1339
+        },
+        "validation": {
+          "0": 209,
+          "1": 83
+        }
+      },
+      "checkpoint_sha256": "b417ee97bd12892d7a848104c0ea263ae9da2b002c997db493dd2a639d1ef214",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E008",
+      "biosample": "H9 embryonic stem cells",
+      "source": "ENCODE",
+      "dhs": "ENCFF121PBD",
+      "h3k27ac": "ENCFF491KPV",
+      "roc_auc": 0.9257961682921441,
+      "average_precision": 0.8524498392476942,
+      "counts": {
+        "test": {
+          "0": 537,
+          "1": 236
+        },
+        "train": {
+          "0": 4651,
+          "1": 2359
+        },
+        "validation": {
+          "0": 344,
+          "1": 171
+        }
+      },
+      "checkpoint_sha256": "7da08c2067c1ce9dd21b323135cac5ae5fe78e793f3fbb301ce820c34828aba6",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E017",
+      "biosample": "IMR-90 fetal lung fibroblast cell line",
+      "source": "ENCODE",
+      "dhs": "ENCFF800DVI",
+      "h3k27ac": "ENCFF125DFL",
+      "roc_auc": 0.9366728147328889,
+      "average_precision": 0.8923528865111129,
+      "counts": {
+        "test": {
+          "0": 3046,
+          "1": 1613
+        },
+        "train": {
+          "0": 26708,
+          "1": 13367
+        },
+        "validation": {
+          "0": 1774,
+          "1": 784
+        }
+      },
+      "checkpoint_sha256": "69b9b587e0d6b614ab953624062b9b15636bb4a0dea35ac6bec3aa8dbf0300ca",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E021",
+      "biosample": "iPS DF 6.9 cells",
+      "source": "ENCODE",
+      "dhs": "ENCFF668UYX",
+      "h3k27ac": "ENCFF756WJX",
+      "roc_auc": 0.8626373626373627,
+      "average_precision": 0.7661683451226754,
+      "counts": {
+        "test": {
+          "0": 52,
+          "1": 28
+        },
+        "train": {
+          "0": 487,
+          "1": 246
+        },
+        "validation": {
+          "0": 37,
+          "1": 14
+        }
+      },
+      "checkpoint_sha256": "af0b7647bd1575e0c6e2e330ece3cb9377ba228ef00893cd8cb8077dd6f38c74",
+      "audit_warning": false,
+      "small_sample": true
+    },
+    {
+      "id": "E022",
+      "biosample": "iPS DF 19.11 cells",
+      "source": "ENCODE",
+      "dhs": "ENCFF172GXY",
+      "h3k27ac": "ENCFF160MUJ",
+      "roc_auc": 0.9255504436411436,
+      "average_precision": 0.8672702063113267,
+      "counts": {
+        "test": {
+          "0": 358,
+          "1": 170
+        },
+        "train": {
+          "0": 3096,
+          "1": 1563
+        },
+        "validation": {
+          "0": 228,
+          "1": 108
+        }
+      },
+      "checkpoint_sha256": "23aefc45fc2bec15a04eeba8f14b3dc127dbb2d9836165ddbd60561fea7c20f3",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E114",
+      "biosample": "A549 baseline zero-hour control",
+      "source": "ENCODE",
+      "dhs": "ENCFF793RUJ",
+      "h3k27ac": "ENCFF918FET",
+      "roc_auc": 0.984081714422451,
+      "average_precision": 0.9658111313698231,
+      "counts": {
+        "test": {
+          "0": 1196,
+          "1": 601
+        },
+        "train": {
+          "0": 9827,
+          "1": 4884
+        },
+        "validation": {
+          "0": 675,
+          "1": 364
+        }
+      },
+      "checkpoint_sha256": "23dbfb6fa0afdacb4c6ff7a26117e9314112218a7371ecc1ef392a53a98cb04e",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E116",
+      "biosample": "GM12878 lymphoblastoid cells",
+      "source": "ENCODE",
+      "dhs": "ENCFF759OLD",
+      "h3k27ac": "ENCFF361XMX",
+      "roc_auc": 0.9602256139753701,
+      "average_precision": 0.9153311684710855,
+      "counts": {
+        "test": {
+          "0": 1942,
+          "1": 829
+        },
+        "train": {
+          "0": 16427,
+          "1": 8448
+        },
+        "validation": {
+          "0": 1147,
+          "1": 481
+        }
+      },
+      "checkpoint_sha256": "d1704518c62005fa9a695063c467c3e13128cf32a905a1b0ab6631c7aa68f838",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E117",
+      "biosample": "HeLa-S3",
+      "source": "ENCODE",
+      "dhs": "ENCFF049BHH",
+      "h3k27ac": "ENCFF495VDP",
+      "roc_auc": 0.9229474686130579,
+      "average_precision": 0.871459774178335,
+      "counts": {
+        "test": {
+          "0": 4565,
+          "1": 2214
+        },
+        "train": {
+          "0": 39675,
+          "1": 20103
+        },
+        "validation": {
+          "0": 2664,
+          "1": 1135
+        }
+      },
+      "checkpoint_sha256": "2499e62242819fb56b7449c7e973b4f50ac52a7b030ea443db3cd9f5f8760bd5",
+      "audit_warning": false,
+      "small_sample": false
+    },
+    {
+      "id": "E118",
+      "biosample": "HepG2",
+      "source": "ENCODE audit errors permitted",
+      "dhs": "ENCFF209DJG",
+      "h3k27ac": "ENCFF331LJV",
+      "roc_auc": 0.9218240130818516,
+      "average_precision": 0.8565155732828815,
+      "counts": {
+        "test": {
+          "0": 3521,
+          "1": 1634
+        },
+        "train": {
+          "0": 31013,
+          "1": 15686
+        },
+        "validation": {
+          "0": 2086,
+          "1": 990
+        }
+      },
+      "checkpoint_sha256": "512bd809866c2161789755595fbf2ab0936e61241a6858a8f23ed7f7efaee2de",
+      "audit_warning": true,
+      "small_sample": false
+    },
+    {
+      "id": "E123",
+      "biosample": "K562",
+      "source": "ENCODE audit errors permitted",
+      "dhs": "ENCFF274YGF",
+      "h3k27ac": "ENCFF153YGA",
+      "roc_auc": 0.8987007685735268,
+      "average_precision": 0.7925837125723231,
+      "counts": {
+        "test": {
+          "0": 2204,
+          "1": 907
+        },
+        "train": {
+          "0": 18502,
+          "1": 9440
+        },
+        "validation": {
+          "0": 1266,
+          "1": 639
+        }
+      },
+      "checkpoint_sha256": "b91ba712fbfe1385e239ea14b2f13dc6dada74744cd11434960dd4440cf75e53",
+      "audit_warning": true,
+      "small_sample": false
+    }
+  ],
+  "example_scope": "First exported alleles in chr22:20,000,001-25,000,000",
+  "repository": "https://github.com/tanoManzo/disease-regulatory-genomics-workflow"
+}

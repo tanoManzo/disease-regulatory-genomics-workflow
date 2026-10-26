@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TREDNet variant-effect atlas: audited GRCh38 allele scores across ten ENCODE enhancer models.">
+  <title>ATLAS | Variant Effects</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="data.js"></script>
+  <script defer src="app.js"></script>
+  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" onload="window.lucide.createIcons()"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">A</span> ATLAS <span class="brand-sub">VARIANT EFFECTS</span></a>
+    <div class="toplinks"><span class="assembly">GRCh38</span><a id="repository" href="https://github.com/tanoManzo/disease-regulatory-genomics-workflow" target="_blank" rel="noopener">Repository <i data-lucide="arrow-up-right" aria-hidden="true"></i></a></div>
+  </header>
+  <main>
+    <div id="error" role="alert" hidden>Snapshot unavailable. The dashboard export is missing or invalid.</div>
+    <section class="heading">
+      <div><p class="eyebrow">TREDNET / ENCODE / 1000 GENOMES</p><h1>Variant-effect atlas</h1><p class="subtitle">Ten enhancer contexts. One shared genome-wide allele set.</p></div>
+    </section>
+    <nav class="tabs" aria-label="Atlas views">
+      <a href="#overview" data-tab="overview">Overview</a><a href="#models" data-tab="models">Models <span>10</span></a><a href="#regions" data-tab="regions">Regions</a><a href="#variants" data-tab="variants">Example variants</a><a href="#provenance" data-tab="provenance">Provenance &amp; data</a>
+    </nav>
+    <section id="overview" class="view" aria-labelledby="overview-title">
+      <h2 id="overview-title" class="sr-only">Atlas overview</h2>
+      <div class="stats"><div><span>Allele rows</span><strong id="total-rows"></strong><small>All ALT alleles retained</small></div><div><span>Successfully scored</span><strong id="ok-rows"></strong><small id="scored-percent"></small></div><div><span>Genome regions</span><strong id="total-chunks"></strong><small>Nonoverlapping 5 Mb chunks</small></div><div><span>Compressed output</span><strong id="total-bytes"></strong><small>Bulk data not bundled</small></div></div>
+      <div class="overview-grid">
+        <section class="chrom-section"><div class="section-heading"><div><p class="eyebrow">GENOMIC COVERAGE</p><h2>Across the chromosomes</h2></div><span class="muted">VCF records · GRCh38</span></div><div id="chrom-chart" class="chrom-chart" aria-label="Source VCF record counts by chromosome"></div></section>
+        <aside class="audit-section"><h2>Scoring status</h2><dl id="status-breakdown" class="status-list"></dl></aside>
+      </div>
+      <section class="method-band"><div><p class="eyebrow">SCORING FRAME</p><h2>ALT minus REF, in context.</h2></div><div class="method-diagram" aria-label="Reference and alternate 2001 base pair sequences scored by Phase I and ten context models"><span class="sequence">REF<br><b>ACGT<span>A</span>CGTA</b></span><span class="sequence">ALT<br><b>ACGT<em>G</em>CGTA</b></span><i data-lucide="arrow-right" aria-hidden="true"></i><span>Shared Phase I<br><small>4,560 features</small></span><i data-lucide="arrow-right" aria-hidden="true"></i><span>10 contexts<br><small>REF · ALT · Δ</small></span></div></section>
+      <div class="footnotes"><p>Each ALT is introduced independently into a 2,001 bp reference window. No individual genotypes or reconstructed haplotypes are represented.</p><p>Source: 1000 Genomes 2019 GRCh38 biallelic SNV/INDEL release, chromosomes 1–22 and X. Not the newer high-coverage 3,202-sample callset.</p></div>
+    </section>
+    <section id="models" class="view" hidden aria-labelledby="models-title">
+      <div class="section-heading"><div><p class="eyebrow">ENCODE DHS + H3K27AC</p><h2 id="models-title">Context models</h2></div><label class="search"><i data-lucide="search" aria-hidden="true"></i><input id="model-search" type="search" placeholder="Search biosample or model" aria-label="Search models"></label></div>
+      <p class="muted">Held-out test chromosomes 8 and 9. Average precision is reported, not trapezoidal PR AUC.</p>
+      <div class="table-wrap"><table><thead><tr><th>Model / biosample</th><th>Test ROC AUC</th><th>Test average precision</th><th>Test positives / controls</th><th>ENCODE inputs</th><th>Caveat</th></tr></thead><tbody id="model-rows"></tbody></table></div><div id="model-count" class="table-footer"></div>
+    </section>
+    <section id="regions" class="view" hidden aria-labelledby="regions-title">
+      <div class="section-heading"><div><p class="eyebrow">AUDITED SHARD CATALOG</p><h2 id="regions-title">Genome regions</h2></div><a class="button secondary" href="shards.tsv" download><i data-lucide="download" aria-hidden="true"></i> Shard manifest</a></div>
+      <div class="toolbar"><label>Chromosome<select id="region-chrom" aria-label="Region chromosome"></select></label><label class="region-query">GRCh38 interval<input id="region-query" placeholder="22:20000001-25000000" aria-label="GRCh38 interval"></label><button class="icon-button" id="reset-regions" title="Reset region filters" aria-label="Reset region filters"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      <p id="region-error" class="field-error" role="status"></p><p class="availability">Full-score hosting: <strong id="availability"></strong></p>
+      <div class="table-wrap"><table><thead><tr><th>Region (1-based inclusive)</th><th>Allele rows</th><th>Scored</th><th>Unscorable</th><th>Shards</th><th>Compressed</th><th>Manifest</th></tr></thead><tbody id="region-rows"></tbody></table></div><div class="pagination"><span id="region-count"></span><div><button id="region-prev" class="icon-button" aria-label="Previous regions" title="Previous regions"><i data-lucide="chevron-left" aria-hidden="true"></i></button><span id="region-page"></span><button id="region-next" class="icon-button" aria-label="Next regions" title="Next regions"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div>
+    </section>
+    <section id="variants" class="view" hidden aria-labelledby="variants-title">
+      <div class="section-heading"><div><p class="eyebrow">BOUNDED REAL-DATA EXAMPLE</p><h2 id="variants-title">chr22 variant effects</h2></div><button class="button secondary" id="export-variants"><i data-lucide="download" aria-hidden="true"></i> Export filtered rows</button></div>
+      <p class="availability" id="example-scope"></p>
+      <div class="toolbar"><label>Context<select id="variant-model"></select></label><label class="search"><i data-lucide="search" aria-hidden="true"></i><input id="variant-search" type="search" placeholder="rsID, position, or REF>ALT" aria-label="Search example variants"></label><label>Variant type<select id="variant-kind"><option value="all">All alleles</option><option value="snv">SNV</option><option value="insertion">Insertion</option><option value="deletion">Deletion</option><option value="substitution">Substitution</option></select></label><label>Sort<select id="variant-sort"><option value="position">Position</option><option value="magnitude">Largest |Δ|</option><option value="increase">Largest increase</option><option value="decrease">Largest decrease</option></select></label></div>
+      <div class="table-wrap"><table><thead><tr><th>Variant</th><th>Context</th><th>Position</th><th>REF → ALT</th><th>REF score</th><th>ALT score</th><th>Δ (ALT − REF)</th><th>Status</th></tr></thead><tbody id="variant-rows"></tbody></table></div><div class="pagination"><span id="variant-count"></span><div><button class="icon-button" id="variant-prev" title="Previous variants" aria-label="Previous variants"><i data-lucide="chevron-left" aria-hidden="true"></i></button><span id="variant-page"></span><button class="icon-button" id="variant-next" title="Next variants" aria-label="Next variants"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div>
+    </section>
+    <section id="provenance" class="view" hidden aria-labelledby="provenance-title">
+      <div class="section-heading"><div><p class="eyebrow">REPRODUCIBILITY &amp; ACCESS</p><h2 id="provenance-title">Data and provenance</h2></div></div>
+      <p class="muted">Scores are research predictions, not causal effects, disease associations or independent biological validation.</p>
+      <div class="data-links"><a href="snapshot.json" download><i data-lucide="file-json" aria-hidden="true"></i><span><strong>Dashboard snapshot</strong><small>Public metadata + bounded variant example · JSON</small></span><i data-lucide="download" aria-hidden="true"></i></a><a href="shards.tsv" download><i data-lucide="files" aria-hidden="true"></i><span><strong>Full shard manifest</strong><small>Region, filename, SHA256, optional public URL · TSV</small></span><i data-lucide="download" aria-hidden="true"></i></a><a href="audit-summary.json" download><i data-lucide="shield-check" aria-hidden="true"></i><span><strong>Audit summary</strong><small>Counts, model metrics and provenance hashes · JSON</small></span><i data-lucide="download" aria-hidden="true"></i></a></div>
+      <div class="provenance-grid"><section><h3>Release fingerprints</h3><dl id="fingerprints" class="fingerprints"></dl><p class="muted">The audit accepts only node-local filesystem device-number drift. Original scoring provenance, model identities and signatures remain unchanged.</p></section><section><h3>Interpretation limits</h3><ul class="limitations"><li>Enhancer labels are DHS/H3K27ac proxies. No ATAC or silencer models are included.</li><li>E021 has only 288 total positive training-set elements across all splits; its test set is small.</li><li>HepG2 and K562 retain explicitly permitted ENCODE ERROR audits.</li><li>Model agreement and held-out metrics are not independent biological validation.</li><li>This is a timestamped public snapshot, not a live Slurm monitor. Full atlas files are not bundled with this website.</li></ul></section></div>
+    </section>
+    <footer><span>ATLAS / TREDNet variant-effect resource</span></footer>
+  </main>
+</body>
+</html>
